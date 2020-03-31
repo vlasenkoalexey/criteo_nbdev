@@ -2,22 +2,22 @@
 
 __all__ = ['get_dataset_size', 'get_steps_per_epoch', 'get_max_steps', 'get_mean_and_std_dicts',
            'get_vocabulary_size_dict', 'get_corpus_dict', 'corpus_to_lookuptable', 'get_corpus', 'transform_row',
-           'get_bigquery_table_name', 'read_bigquery', 'read_gcs', 'BATCH_SIZE', 'dataset']
+           'get_bigquery_table_name', 'read_bigquery', 'read_gcs', 'get_dataset']
 
 # Cell
 from .constants import *
 
 def get_dataset_size(dataset_size: DATASET_SIZE_TYPE, dataset_type: DATASET_TYPE):
     if dataset_size == DATASET_SIZE_TYPE.full:
-        if dataset_type == DATASET_TYPE.train:
-            return FULL_TRAIN_DATASET_SIZE
+        if dataset_type == DATASET_TYPE.training:
+            return FULL_TRAINING_DATASET_SIZE
         else:
-            return FULL_TEST_DATASET_SIZE
+            return FULL_VALIDATION_DATASET_SIZE
     else:
-        if dataset_type == DATASET_TYPE.train:
-            return SMALL_TRAIN_DATASET_SIZE
+        if dataset_type == DATASET_TYPE.training:
+            return SMALL_TRAINING_DATASET_SIZE
         else:
-            return SMALL_TEST_DATASET_SIZE
+            return SMALL_VALIDATION_DATASET_SIZE
 
 def get_steps_per_epoch(dataset_size: DATASET_SIZE_TYPE, dataset_type: DATASET_TYPE):
     return get_dataset_size(dataset_size, dataset_type) // BATCH_SIZE
@@ -47,7 +47,7 @@ def get_mean_and_std_dicts():
     AVG(int11) as avg_int11, STDDEV(int11) as std_int11,
     AVG(int12) as avg_int12, STDDEV(int12) as std_int12,
     AVG(int13) as avg_int13, STDDEV(int13) as std_int13
-    from `{project}.{dataset}.{table_name}`
+    FROM `{project}.{dataset}.{table_name}`
   """.format(
         project=PROJECT_ID,
         dataset=DATASET_ID,
@@ -100,8 +100,7 @@ def get_vocabulary_size_dict():
     COUNT(DISTINCT cat24) as cat24,
     COUNT(DISTINCT cat25) as cat25,
     COUNT(DISTINCT cat26) as cat26
-    FROM
-      from `{project}.{dataset}.{table_name}`
+    FROM `{project}.{dataset}.{table_name}`
   """.format(
         project=PROJECT_ID,
         dataset=DATASET_ID,
@@ -272,14 +271,8 @@ from tensorflow.python.framework import dtypes
 from tensorflow.python.data.experimental.ops import interleave_ops
 from tensorflow.python.data.ops import dataset_ops
 
-from tensorflow_io.bigquery import BigQueryClient
-from tensorflow_io.bigquery import BigQueryReadSession
-
 import tensorflow as tf
 import criteo_nbdev.data_import
-
-import gcp_runner.core
-gcp_runner.core.export_and_reload_all(silent=True)
 
 def read_gcs(dataset_size: DATASET_SIZE_TYPE, dataset_type: DATASET_TYPE, embedding_mode: EMBEDDINGS_MODE_TYPE):
     file_names = criteo_nbdev.data_import.get_file_names_with_validation_split(dataset_size, dataset_type, 0.2)
@@ -316,7 +309,15 @@ def read_gcs(dataset_size: DATASET_SIZE_TYPE, dataset_type: DATASET_TYPE, embedd
     return transformed_ds
 
 
-BATCH_SIZE = 4
-dataset = read_gcs(DATASET_SIZE_TYPE.small, DATASET_TYPE.validation, EMBEDDINGS_MODE_TYPE.hashbucket)
-for row in dataset.take(2):
-    print(row)
+# Cell
+
+from .constants import *
+
+def get_dataset(dataset_source: DATASET_SOURCE_TYPE,
+                dataset_size: DATASET_SIZE_TYPE,
+                dataset_type: DATASET_TYPE,
+                embedding_mode: EMBEDDINGS_MODE_TYPE):
+    if dataset_source == DATASET_SOURCE_TYPE.gcs:
+        return read_gcs(dataset_size, dataset_type, embedding_mode)
+    else:
+        return read_bigquery(dataset_size, dataset_type, embedding_mode)
