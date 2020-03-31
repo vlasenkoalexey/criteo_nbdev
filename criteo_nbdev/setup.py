@@ -11,3 +11,4 @@ import os.path
 
 #TODO: for cloud runs, need to copy file to cloud machine
 os.environ['GOOGLE_APPLICATION_CREDENTIALS']=os.path.join(os.getcwd(), SERVICE_ACCOUNT_KEY_FILE_NAME)
+os.environ['GRPC_DEFAULT_SSL_ROOTS_FILE_PATH']=os.path.join(os.getcwd(), 'roots.pem')
