@@ -1,0 +1,15 @@
+.git
+.ipynb_checkpoints
+Dockerfile
+.DS_Store
+.gitignore
+README.md
+env.*
+trainer.egg-info
+trained
+model
+models
+dist
+
+# To prevent storing dev/temporary container data
+tmp

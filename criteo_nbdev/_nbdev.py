@@ -51,7 +51,10 @@ index = {"StopExecution": "00_core.ipynb",
          "create_feature_columns": "05_trainer.ipynb",
          "create_keras_model_sequential": "05_trainer.ipynb",
          "train_and_evaluate_keras_model": "05_trainer.ipynb",
-         "train_and_evaluate_keras_model_small": "05_trainer.ipynb"}
+         "train_and_evaluate_keras_model_small": "05_trainer.ipynb",
+         "get_distribution_strategy_instance": "10_entry_point.ipynb",
+         "parse_unknown_args": "10_entry_point.ipynb",
+         "main": "10_entry_point.ipynb"}
 
 modules = ["core.py",
            "constants.py",
