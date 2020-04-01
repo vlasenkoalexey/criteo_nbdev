@@ -233,14 +233,17 @@ gcp_runner.core.export_and_reload_all(silent=True)
 
 # train_keras_sequential(None, './models/model1')
 
-def train_and_evaluate_keras_model_small(distribution_strategy=None, **kwargs):
+def train_and_evaluate_keras_model_small(distribution_strategy=None, job_dir=None, int_arg=None, **kwargs):
     print('distribution_strategy:')
     print(distribution_strategy)
+    print('job_dir:')
+    print(job_dir)
+    print('int_arg:')
+    print(int_arg)
+    print(type(int_arg))
     print('kwargs:')
     print(kwargs)
 #     print('args:')7
 #     print(args)
     #train_and_evaluate_keras_model(create_keras_model_sequential(), './models/model1', 2, DATASET_SOURCE_TYPE.bq, DATASET_SIZE_TYPE.full, EMBEDDINGS_MODE_TYPE.hashbucket, None)
-
-#train_and_evaluate_keras_model_small()
 
