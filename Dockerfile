@@ -1,6 +1,6 @@
 # Dockerfile
 
-FROM gcr.io/deeplearning-platform-release/tf2-cpu.2-1
+FROM gcr.io/deeplearning-platform-release/tf2-gpu.2-1
 
 WORKDIR /root
 
@@ -9,6 +9,9 @@ ENV GOOGLE_APPLICATION_CREDENTIALS=/root/service_account_key.json
 COPY service_account_key.json /root/
 
 RUN pip install nbdev
+
+ENV KMP_AFFINITY=""
+ENV TF_DISABLE_MKL=1
 
 ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 RUN git clone https://github.com/vlasenkoalexey/gcp_runner

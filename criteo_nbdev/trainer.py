@@ -164,8 +164,7 @@ def train_and_evaluate_keras_model(
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
         log_dir=log_dir,
         histogram_freq=1,
-        embeddings_freq=1,
-        profile_batch=min(epochs, 2))
+        embeddings_freq=1)
 
     checkpoints_dir = os.path.join(model_dir, "checkpoints")
     # crashing https://github.com/tensorflow/tensorflow/issues/27688
@@ -233,17 +232,12 @@ gcp_runner.core.export_and_reload_all(silent=True)
 
 # train_keras_sequential(None, './models/model1')
 
-def train_and_evaluate_keras_model_small(distribution_strategy=None, job_dir=None, int_arg=None, **kwargs):
+def train_and_evaluate_keras_model_small(distribution_strategy=None, job_dir=None, **kwargs):
     print('distribution_strategy:')
     print(distribution_strategy)
     print('job_dir:')
     print(job_dir)
-    print('int_arg:')
-    print(int_arg)
-    print(type(int_arg))
     print('kwargs:')
     print(kwargs)
-#     print('args:')7
-#     print(args)
-    #train_and_evaluate_keras_model(create_keras_model_sequential(), './models/model1', 2, DATASET_SOURCE_TYPE.bq, DATASET_SIZE_TYPE.full, EMBEDDINGS_MODE_TYPE.hashbucket, None)
+    train_and_evaluate_keras_model(create_keras_model_sequential(), job_dir, 2, DATASET_SOURCE_TYPE.bq, DATASET_SIZE_TYPE.tiny, EMBEDDINGS_MODE_TYPE.hashbucket, None)
 

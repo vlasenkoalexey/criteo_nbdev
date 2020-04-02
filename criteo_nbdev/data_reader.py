@@ -13,11 +13,18 @@ def get_dataset_size(dataset_size: DATASET_SIZE_TYPE, dataset_type: DATASET_TYPE
             return FULL_TRAINING_DATASET_SIZE
         else:
             return FULL_VALIDATION_DATASET_SIZE
-    else:
+    elif dataset_size == DATASET_SIZE_TYPE.small:
         if dataset_type == DATASET_TYPE.training:
             return SMALL_TRAINING_DATASET_SIZE
         else:
             return SMALL_VALIDATION_DATASET_SIZE
+    elif dataset_size == DATASET_SIZE_TYPE.tiny:
+        if dataset_type == DATASET_TYPE.training:
+            return TINY_TRAINING_DATASET_SIZE
+        else:
+            return TINY_VALIDATION_DATASET_SIZE
+    else:
+        raise ValueError('Invalid dataset_size: %s' % dataset_size)
 
 def get_steps_per_epoch(dataset_size: DATASET_SIZE_TYPE, dataset_type: DATASET_TYPE):
     return get_dataset_size(dataset_size, dataset_type) // BATCH_SIZE

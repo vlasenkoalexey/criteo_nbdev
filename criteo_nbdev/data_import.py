@@ -80,7 +80,14 @@ def get_file_names_with_validation_split(dataset_size: DATASET_SIZE_TYPE, datase
         if (dataset_type == DATASET_TYPE.training) ^ (_get_file_suffix(file_name) % modulo == 0))
     if dataset_size == DATASET_SIZE_TYPE.full:
         return large_dataset_file_names
-    modulo = 10
+
+    modulo = None
+    if dataset_size == DATASET_SIZE_TYPE.small:
+        modulo = 10
+    elif dataset_size == DATASET_SIZE_TYPE.tiny:
+        modulo = 100
+    else:
+        raise ValueError('Invalid dataset_size:%s', dataset_size)
     small_dataset_files = list(
         file_name for (idx, file_name) in enumerate(large_dataset_file_names) if idx % modulo == 0)
     return small_dataset_files
