@@ -4,12 +4,9 @@ __all__ = ['TrainTimeCallback', 'PlotLossesCallback', 'create_categorical_featur
            'create_categorical_feature_column_with_vocabulary_list', 'create_embedding',
            'create_linear_feature_columns', 'create_categorical_embeddings_feature_columns', 'create_feature_columns',
            'create_keras_model_sequential', 'train_and_evaluate_keras_model', 'train_and_evaluate_keras',
-           'train_and_evaluate_estimator', 'train_and_evaluate_keras_model_small',
-           'train_and_evaluate_estimator_model_small']
+           'train_and_evaluate_estimator']
 
 # Cell
-
-# just updated now
 
 from .constants import *
 from gcp_runner.ai_platform_constants import *
@@ -301,31 +298,3 @@ def train_and_evaluate_estimator(
         eval_spec=tf.estimator.EvalSpec(
             input_fn=lambda: criteo_nbdev.data_reader.get_dataset(dataset_source, dataset_size, DATASET_TYPE.validation, embeddings_mode).repeat(epochs)))
     logging.info('done evaluating estimator model')
-
-# Cell
-
-import gcp_runner.core
-gcp_runner.core.export_and_reload_all(silent=True)
-
-# def train_keras_sequential(strategy, model_dir):
-#     return train_and_evaluate_keras_model(create_keras_model_sequential(), model_dir)
-
-# train_keras_sequential(None, './models/model1')
-
-def train_and_evaluate_keras_model_small(distribution_strategy=None, job_dir=None, **kwargs):
-    print('distribution_strategy:')
-    print(distribution_strategy)
-    print('job_dir:')
-    print(job_dir)
-    print('kwargs:')
-    print(kwargs)
-    train_and_evaluate_keras_model(create_keras_model_sequential(EMBEDDINGS_MODE_TYPE.hashbucket), job_dir, 2, DATASET_SOURCE_TYPE.bq, DATASET_SIZE_TYPE.tiny, EMBEDDINGS_MODE_TYPE.hashbucket, None)
-
-def train_and_evaluate_estimator_model_small(distribution_strategy=None, job_dir=None, **kwargs):
-    print('distribution_strategy:')
-    print(distribution_strategy)
-    print('job_dir:')
-    print(job_dir)
-    print('kwargs:')
-    print(kwargs)
-    train_estimator(job_dir, 2, DATASET_SOURCE_TYPE.bq, DATASET_SIZE_TYPE.tiny, EMBEDDINGS_MODE_TYPE.hashbucket, distribution_strategy)

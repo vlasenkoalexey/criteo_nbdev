@@ -54,10 +54,10 @@ index = {"StopExecution": "00_core.ipynb",
          "train_and_evaluate_keras_model": "05_trainer.ipynb",
          "train_and_evaluate_keras": "05_trainer.ipynb",
          "train_and_evaluate_estimator": "05_trainer.ipynb",
-         "train_and_evaluate_keras_model_small": "05_trainer.ipynb",
-         "train_and_evaluate_estimator_model_small": "05_trainer.ipynb",
          "train_and_evaluate_keras_small": "index.ipynb",
-         "train_and_evaluate_estimator_small": "index.ipynb"}
+         "train_and_evaluate_estimator_small": "index.ipynb",
+         "train_and_evaluate_keras_model_small": "experimental.ipynb",
+         "train_and_evaluate_estimator_model_small": "experimental.ipynb"}
 
 modules = ["core.py",
            "constants.py",
