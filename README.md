@@ -189,7 +189,47 @@ gcp_runner.kubernetes_runner.run_docker_image(
      use_distribution_strategy_scope=True)
 ```
 
+## Distributed hyper parameter tuning using Keras Tuner
+
+[Keras Tuner](https://keras-team.github.io/keras-tuner/) provides very user friendly API for hyper parameter search, and also supports [distributed tuning](https://keras-team.github.io/keras-tuner/tutorials/distributed-tuning/).
+All that is necessary in order to run tuning on multiple machines in parallel is to set few environment arguments.
+gcp_runner takes care of that which makes running distributed parameter search very straighforward.
+
+See 05_trainer.ipynb for hyper model definition.
+
 ```python
-import nbdev.export2html
-nbdev.export2html.convert_nb('03_data_import.ipynb')
+#export
+from criteo_nbdev import trainer
+
+def run_keras_hp_search(job_dir=None, **kwargs):
+    trainer.keras_hp_search(job_dir)
+```
+
+Running on AI platform:
+
+```python
+from gcp_runner.ai_platform_constants import *
+import gcp_runner.ai_platform_runner
+
+gcp_runner.ai_platform_runner.run_docker_image(
+     run_keras_hp_search,
+     'gs://alekseyv-scalableai-dev-criteo-model-bucket/test-job-dir/model_mirrored_strategy_{username}_{datetime}',
+     master_image_uri='gcr.io/alekseyv-scalableai-dev/criteo-nbdev',
+     build_docker_file='./Dockerfile',
+     master_machine_type=MachineType.N1_STANDARD_16,
+     worker_machine_type=MachineType.N1_STANDARD_16,
+     worker_machine_count=6,
+     region='us-west1')
+```
+
+Running on Kubernetes:
+
+```python
+import gcp_runner.kubernetes_runner
+gcp_runner.kubernetes_runner.run_docker_image(
+     run_keras_hp_search,
+     'gs://alekseyv-scalableai-dev-criteo-model-bucket/test-job-dir/model_mirrored_strategy_{username}_{datetime}',
+     image_uri='gcr.io/alekseyv-scalableai-dev/criteo-nbdev',
+     build_docker_file='./Dockerfile',
+     worker_machine_count=3)
 ```

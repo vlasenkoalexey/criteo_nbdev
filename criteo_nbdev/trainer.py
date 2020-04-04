@@ -4,7 +4,7 @@ __all__ = ['TrainTimeCallback', 'PlotLossesCallback', 'create_categorical_featur
            'create_categorical_feature_column_with_vocabulary_list', 'create_embedding',
            'create_linear_feature_columns', 'create_categorical_embeddings_feature_columns', 'create_feature_columns',
            'create_keras_model_sequential', 'train_and_evaluate_keras_model', 'train_and_evaluate_keras',
-           'train_and_evaluate_estimator']
+           'keras_hp_search', 'train_and_evaluate_estimator']
 
 # Cell
 
@@ -258,6 +258,61 @@ def train_and_evaluate_keras(
         dataset_size=dataset_size,
         embeddings_mode=embeddings_mode,
         distribution_strategy=distribution_strategy)
+
+
+# Cell
+import criteo_nbdev.data_reader
+import nbdev.imports
+import tensorflow as tf
+import logging
+import math
+import os
+from kerastuner.tuners import RandomSearch
+from .constants import *
+from gcp_runner.ai_platform_constants import *
+
+def keras_hp_search(
+    model_dir,
+    epochs = 3,
+    dataset_source: DATASET_SOURCE_TYPE = DATASET_SOURCE_TYPE.gcs,
+    dataset_size: DATASET_SIZE_TYPE = DATASET_SIZE_TYPE.tiny,
+    embeddings_mode: EMBEDDINGS_MODE_TYPE = EMBEDDINGS_MODE_TYPE.hashbucket,
+    distribution_strategy: DistributionStrategyType = None):
+
+    def build_model(hp):
+        feature_columns = create_feature_columns(embeddings_mode)
+        feature_layer = tf.keras.layers.DenseFeatures(feature_columns, name="feature_layer")
+        Dense = tf.keras.layers.Dense
+        kernel_regularizer=tf.keras.regularizers.l2(0.001)
+        model = tf.keras.Sequential()
+        model.add(feature_layer)
+        model.add(Dense(hp.Choice('layer1', values=[50, 100, 200]), activation=tf.nn.relu, kernel_regularizer=kernel_regularizer)),
+        model.add(Dense(hp.Choice('layer2', values=[50, 100, 200]), activation=tf.nn.relu, kernel_regularizer=kernel_regularizer)),
+        model.add(Dense(1, activation=tf.nn.sigmoid, kernel_regularizer=kernel_regularizer))
+
+        logging.info('compiling sequential keras model')
+        # Compile Keras model
+        model.compile(
+          optimizer=tf.optimizers.SGD(learning_rate=0.05),
+          loss=tf.keras.losses.BinaryCrossentropy(),
+          metrics=['accuracy'])
+        return model
+
+    training_ds = criteo_nbdev.data_reader.get_dataset(dataset_source, dataset_size, DATASET_TYPE.training, embeddings_mode).repeat(epochs)
+    eval_ds = criteo_nbdev.data_reader.get_dataset(dataset_source, dataset_size, DATASET_TYPE.validation, embeddings_mode).repeat(epochs)
+
+    tuner = RandomSearch(
+        build_model,
+        objective='val_loss',
+        max_trials=30,
+        executions_per_trial=1,
+        directory=model_dir)
+
+    tuner.search_space_summary()
+    tuner.search(training_ds,
+                 validation_data=eval_ds,
+                 epochs=3,
+                 verbose=2)
 
 
 # Cell

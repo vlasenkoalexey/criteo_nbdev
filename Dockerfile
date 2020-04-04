@@ -13,6 +13,7 @@ RUN pip install nbdev
 ENV KMP_AFFINITY=""
 ENV TF_DISABLE_MKL=1
 
+RUN pip install keras-tuner
 ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 RUN git clone https://github.com/vlasenkoalexey/gcp_runner
 RUN pip install -e gcp_runner

@@ -8,6 +8,7 @@ from .constants import *
 # Cell
 import os
 import os.path
+from .constants import *
 
 #TODO: for cloud runs, need to copy file to cloud machine
 os.environ['GOOGLE_APPLICATION_CREDENTIALS']=os.path.join(os.getcwd(), SERVICE_ACCOUNT_KEY_FILE_NAME)
