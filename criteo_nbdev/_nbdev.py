@@ -58,11 +58,6 @@ index = {"StopExecution": "00_core.ipynb",
          "train_and_evaluate_estimator": "05_trainer.ipynb",
          "train_and_evaluate_keras_small": "index.ipynb",
          "train_and_evaluate_estimator_small": "index.ipynb",
-         "train_and_evaluate_keras_model_small": "experimental.ipynb",
-         "train_and_evaluate_estimator_model_small": "experimental.ipynb",
-         "get_Host_name_IP": "experimental2.ipynb",
-         "resolveChief": "experimental2.ipynb",
-         "setupKerasConfig": "experimental2.ipynb",
          "run_keras_hp_search": "index.ipynb"}
 
 modules = ["core.py",
@@ -70,8 +65,6 @@ modules = ["core.py",
            "data_import.py",
            "data_reader.py",
            "trainer.py",
-           "experimental.py",
-           "experimental2.py",
            "index.py",
            "setup.py"]
 

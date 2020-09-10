@@ -1,6 +1,6 @@
 # Dockerfile
 
-FROM gcr.io/deeplearning-platform-release/tf2-cpu.2-3
+FROM tensorflow/tensorflow:2.3.0
 
 WORKDIR /root
 
@@ -12,11 +12,21 @@ RUN pip --version
 RUN python --version
 RUN pip install nbdev
 
-#ENV KMP_AFFINITY=""
-#ENV TF_DISABLE_MKL=1
-
 RUN pip install keras-tuner
 RUN pip install --no-deps tensorflow-io==0.15.0
+
+RUN pip install google-cloud
+RUN pip install google-cloud-bigquery
+RUN pip install matplotlib
+RUN pip install pandas
+# See https://stackoverflow.com/questions/59187054/runtimeerror-unable-to-create-link-name-already-exists-when-i-append-hdf5-fil
+RUN pip uninstall -y h5py
+RUN pip install h5py
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git
+
 #ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 
 RUN git clone https://github.com/vlasenkoalexey/gcp_runner

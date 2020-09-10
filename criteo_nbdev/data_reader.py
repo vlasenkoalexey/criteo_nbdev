@@ -75,9 +75,9 @@ def get_mean_and_std_dicts():
 
     df = query_job.to_dataframe()
 
-    mean_dict = dict((field[0].replace('avg_', ''), df[field[0]][0])
+    mean_dict = dict((field[0].replace('avg_', ''), float(df[field[0]][0]))
                      for field in df.items() if field[0].startswith('avg'))
-    std_dict = dict((field[0].replace('std_', ''), df[field[0]][0])
+    std_dict = dict((field[0].replace('std_', ''), float(df[field[0]][0]))
                     for field in df.items() if field[0].startswith('std'))
     return (mean_dict, std_dict)
 
@@ -210,8 +210,8 @@ def transform_row(row_dict, mean_dict, std_dict, corpus, embeddings_mode):
         if (field.name.startswith('int')):
             # use normalized mean value if data is missing (value will be 0)
             value = float(dict_without_label[field.name])
-            dict_without_label[field.name] = (
-                value - mean_dict[field.name]) / std_dict[field.name]
+            dict_without_label[field.name] = \
+                (value - mean_dict[field.name]) / std_dict[field.name]
         elif field.name.startswith('cat'):
             if embeddings_mode == EMBEDDINGS_MODE_TYPE.none.value:
                 dict_without_label.pop(field.name)
@@ -263,10 +263,11 @@ def read_bigquery(dataset_size: DATASET_SIZE_TYPE, dataset_type: DATASET_TYPE, e
             corpus,
             embedding_mode.value)
 
+    num_parallel_calls = streams_count if tf.version.VERSION[0:3] in ['2.0', '2.1', '2.2'] else streams_count64
     transformed_ds = dataset\
         .batch(BATCH_SIZE) \
         .shuffle(50) \
-        .map(transform_row_function, num_parallel_calls=streams_count) \
+        .map(transform_row_function, num_parallel_calls) \
         .prefetch(50)
 
     # TODO: enable once tf.data.experimental.AutoShardPolicy.OFF is available

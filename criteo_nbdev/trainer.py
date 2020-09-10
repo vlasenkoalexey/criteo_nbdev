@@ -82,7 +82,7 @@ def create_categorical_feature_column_with_vocabulary_list(corpus_dict, vocabula
         key,
         list(corpus_dict[key].keys()),
         dtype=tf.dtypes.string,
-        num_oov_buckets=corpus_size - len(corpus_dict[key])
+        num_oov_buckets=max(1, corpus_size - len(corpus_dict[key]))
     )
     logging.info(
         'categorical column with vocabular %s corpus_size %d', key, corpus_size)
@@ -196,8 +196,7 @@ def train_and_evaluate_keras_model(
         checkpoints_file_path = checkpoints_dir + "/epochs_tpu.hdf5"
         checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
             checkpoints_file_path, verbose=1, mode='max')
-        callbacks = [tensorboard_callback,
-                     checkpoint_callback, train_time_callback]
+        callbacks = [tensorboard_callback, checkpoint_callback, train_time_callback]
     else:
         if embeddings_mode == EMBEDDINGS_MODE_TYPE.manual or distribution_strategy == DistributionStrategyType.MULTI_WORKER_MIRRORED_STRATEGY:
             # accuracy fails for adagrad
@@ -210,7 +209,8 @@ def train_and_evaluate_keras_model(
                 "/epochs:{epoch:03d}-accuracy:{accuracy:.3f}.hdf5"
         checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
             checkpoints_file_path, verbose=1, mode='max')
-        callbacks = [tensorboard_callback, checkpoint_callback, train_time_callback]
+        #callbacks = [tensorboard_callback, checkpoint_callback, train_time_callback]
+        callbacks = [tensorboard_callback, train_time_callback]
 
     verbosity = 1 if nbdev.imports.in_ipython() else 2
     if nbdev.imports.in_ipython():
@@ -341,7 +341,7 @@ def train_and_evaluate_estimator(
         n_classes=2)
     logging.info('training and evaluating estimator model')
     training_ds = criteo_nbdev.data_reader.get_dataset(dataset_source, dataset_size, DATASET_TYPE.training, embeddings_mode).repeat(epochs)
-    eval_ds = criteo_nbdev.data_reader.get_dataset(dataset_source, dataset_size, DATASET_TYPE.validation, embeddings_mode).repeat(epochs)
+    eval_ds = criteo_nbdev.data_reader.get_dataset(dataset_source, dataset_size, DATASET_TYPE.validation, embeddings_mode).repeat(epochs) # why??
 
     # Need to specify both max_steps and epochs. Each worker will go through epoch separately.
     # see https://www.tensorflow.org/api_docs/python/tf/estimator/train_and_evaluate?version=stable
@@ -353,3 +353,8 @@ def train_and_evaluate_estimator(
         eval_spec=tf.estimator.EvalSpec(
             input_fn=lambda: criteo_nbdev.data_reader.get_dataset(dataset_source, dataset_size, DATASET_TYPE.validation, embeddings_mode).repeat(epochs)))
     logging.info('done evaluating estimator model')
+
+    serving_input_fn = tf.estimator.export.build_parsing_serving_input_receiver_fn(
+        tf.feature_column.make_parse_example_spec(feature_columns))
+    estimator_base_path = os.path.join(model_dir, 'from_estimator')
+    estimator_path = estimator.export_saved_model(estimator_base_path, serving_input_fn)
