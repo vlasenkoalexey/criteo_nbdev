@@ -180,8 +180,8 @@ def train_and_evaluate_keras_model(
     log_dir = os.path.join(model_dir, "logs")
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
         log_dir=log_dir,
-        histogram_freq=1,
-        embeddings_freq=1)
+        histogram_freq=0,
+        embeddings_freq=0)
 
     checkpoints_dir = os.path.join(model_dir, "checkpoints")
     # crashing https://github.com/tensorflow/tensorflow/issues/27688
