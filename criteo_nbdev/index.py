@@ -13,7 +13,6 @@ logging.getLogger().setLevel(logging.INFO)
 
 # Cell
 def train_and_evaluate_keras_small(distribution_strategy=None, job_dir=None, **kwargs):
-    print(tensorflow_io.version.VERSION)
     trainer.train_and_evaluate_keras(job_dir, epochs=3, dataset_size=DATASET_SIZE_TYPE.tiny, distribution_strategy=distribution_strategy)
 
 def train_and_evaluate_estimator_small(distribution_strategy=None, job_dir=None, **kwargs):
