@@ -1,6 +1,35 @@
 # Running distributed training on Google Cloud Platform using [gcp_runner](https://github.com/vlasenkoalexey/gcp_runner) and [nbdev](https://github.com/fastai/nbdev/tree/master/nbdev)
-> This projects demonstrates how to run distributed training for TensorFlow Keas and Estimator columnar models on Google Cloud Platform. As a data source public [Criteo Kaggle dataset](https://www.kaggle.com/c/criteo-display-ad-challenge/data) is used.
+> This projects demonstrates how to run distributed training for TensorFlow Keas and Estimator columnar models on Google Cloud Platform using [GCP runner](https://github.com/vlasenkoalexey/gcp_runner).
 
+
+Conceptually GCP runner consists or 2 parts:
+- **Runners** - modules to produce command line commands to build docker image, and run it on some platform (such as gcloud ai-platform jobs submit …). It executes those commands on a subshell and pipes output directly to Jupyter cell output. So for users it looks like code is running locally. Besides packaging container or package, it also needs a way to tell gcloud which function within that container/package to execute. So whenever runner is called, it takes a function as an input, figures out which module it belongs, serializes command line arguments and formats the command to execute.
+
+- **entry_point** - it is expected to be called in a package container as an entry point. It dynamically loads a module to execute, finds a function and calls it with provided arguments.
+
+For `criteo_nbdev`, it looks like following:
+
+![criteo_nbdev_example](./assets/criteo_nbdev_example.png)
+
+In notebook user can simply call <span style="background-color: red;"> train_and_evaluate_keras_small(job_dir=...)</span>.
+And in order to move same computation to GKE for example, it has to be changed to:
+
+```python
+gcp_runner.ai_platform_runner.run_docker_image(
+  train_and_evaluate_keras_small,  'gs://somebucket',
+  ...
+)
+```
+
+When user calls that function GCP runner finds that <span style="background-color: red;">train_and_evaluate_keras_small</span> function lives in a module index, builds a command line to execute that tells that when container is started it should execute following code on startup:
+```sh
+python -u -m gcp_runner.entry_point \ 
+ --module-name=criteo_nbdev.index \ 
+ --function-name=train_and_evaluate_keras_small \
+... additional args
+```
+
+And <span style="background-color: orange;">gcp_runner.entry_point</span> passes calls the function that user provided with the arguments. But since everyting is packaged as Docker container, it can be executed anywhere Docker can run. 
 
 ## Setup
 
